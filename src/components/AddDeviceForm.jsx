@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -8,13 +8,17 @@ import {
   Typography,
   Grid,
 } from "@mui/material";
-import { useDispatch } from "react-redux";
-import { addNewDevice } from "../features/devices/deviceSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addNewDevice,
+  updateDeviceById,
+} from "../features/devices/deviceSlice";
 
 const statusOptions = ["Online", "Offline", "Maintenance"];
 
-const AddDeviceForm = () => {
+const AddDeviceForm = ({ editingId, setEditingId }) => {
   const dispatch = useDispatch();
+  const devices = useSelector((state) => state.devices.items);
 
   const [formData, setFormData] = useState({
     id: "",
@@ -29,6 +33,16 @@ const AddDeviceForm = () => {
   });
 
   const [errors, setErrors] = useState({});
+
+  // Load data into form if editing
+  useEffect(() => {
+    if (editingId) {
+      const deviceToEdit = devices.find((d) => d.id === editingId);
+      if (deviceToEdit) {
+        setFormData(deviceToEdit);
+      }
+    }
+  }, [editingId, devices]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -61,7 +75,13 @@ const AddDeviceForm = () => {
     e.preventDefault();
     if (!validate()) return;
 
-    dispatch(addNewDevice(formData));
+    if (editingId) {
+      dispatch(updateDeviceById({ id: editingId, updatedData: formData }));
+    } else {
+      dispatch(addNewDevice(formData));
+    }
+
+    // Reset form
     setFormData({
       id: "",
       type: "",
@@ -73,13 +93,14 @@ const AddDeviceForm = () => {
       contractType: "AMC",
       photo: "",
     });
+    setEditingId(null);
     setErrors({});
   };
 
   return (
     <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
       <Typography variant="h6" gutterBottom>
-        Add New Device
+        {editingId ? `Edit Device (${editingId})` : "Add New Device"}
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit}>
@@ -93,6 +114,7 @@ const AddDeviceForm = () => {
               fullWidth
               error={!!errors.id}
               helperText={errors.id}
+              disabled={!!editingId} // Don't allow changing ID when editing
             />
           </Grid>
 
@@ -194,9 +216,20 @@ const AddDeviceForm = () => {
           </Grid>
 
           <Grid item xs={12}>
-            <Button type="submit" variant="contained">
-              Add Device
-            </Button>
+            <Box display="flex" gap={2}>
+              <Button type="submit" variant="contained">
+                {editingId ? "Update Device" : "Add Device"}
+              </Button>
+              {editingId && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => setEditingId(null)}
+                >
+                  Cancel Edit
+                </Button>
+              )}
+            </Box>
           </Grid>
         </Grid>
       </Box>
