@@ -1,5 +1,16 @@
 {
-  "devices": [],
+  "devices": [
+    {
+      "id": "MD-001",
+      "type": "Defibrillator",
+      "facility": "Apollo Chennai",
+      "status": "Online",
+      "battery": 76,
+      "lastServiceDate": "2024-12-10",
+      "installDate": "2024-06-15",
+      "contractType": "AMC"
+    }
+  ],
   "installations": [],
   "serviceLogs": [],
   "amcContracts": [],

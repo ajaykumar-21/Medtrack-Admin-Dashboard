@@ -1,3 +1,5 @@
+import AddDeviceForm from "../components/AddDeviceForm";
+
 import React, { useEffect } from "react";
 import {
   Table,
@@ -76,6 +78,7 @@ const Dashboard = () => {
           </Table>
         </TableContainer>
       )}
+      <AddDeviceForm />
     </Box>
   );
 };
